@@ -3,12 +3,7 @@ package tasks;
 import common.Person;
 import common.Task;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,7 +22,7 @@ public class Task8 implements Task {
 
   //Не хотим выдывать апи нашу фальшивую персону, поэтому конвертим начиная со второй
   public List<String> getNames(List<Person> persons) {
-    if (persons.size() == 0) {
+    if (persons.size() == 0 || persons.size() == 1) { // если в списке только 1 элемент, то после его удаления, список станет пуст и нет смысла выполнять код на строках 28-29
       return Collections.emptyList();
     }
     persons.remove(0);
@@ -41,19 +36,22 @@ public class Task8 implements Task {
 
   //Для фронтов выдадим полное имя, а то сами не могут
   public String convertPersonToString(Person person) {
-    String result = "";
-    if (person.getSecondName() != null) {
-      result += person.getSecondName();
+    String fullName = "";
+    String secondName = person.getSecondName(); // чтобы метод вызывался 1 раз, а не 4
+    if (secondName != null && !secondName.isEmpty()) {
+      fullName += secondName;
     }
 
-    if (person.getFirstName() != null) {
-      result += " " + person.getFirstName();
+    String firstName = person.getFirstName();
+    if (firstName != null && !firstName.isEmpty()) {
+      fullName += " " + firstName;
     }
 
-    if (person.getSecondName() != null) {
-      result += " " + person.getSecondName();
+    String middleName = person.getMiddleName();
+    if (middleName != null && !middleName.isEmpty()) { // дублировался код первого блока if
+      fullName += " " + middleName;
     }
-    return result;
+    return fullName;
   }
 
   // словарь id персоны -> ее имя
@@ -69,18 +67,18 @@ public class Task8 implements Task {
 
   // есть ли совпадающие в двух коллекциях персоны?
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
-    boolean has = false;
+    //boolean has = false;
     for (Person person1 : persons1) {
       for (Person person2 : persons2) {
         if (person1.equals(person2)) {
-          has = true;
+          return true; // при попадании в этот блок выполнение функции можно завершить
         }
       }
     }
-    return has;
+    return false;
   }
 
-  //...
+  // подсчет количества четных элементов
   public long countEven(Stream<Integer> numbers) {
     count = 0;
     numbers.filter(num -> num % 2 == 0).forEach(num -> count++);
@@ -90,8 +88,34 @@ public class Task8 implements Task {
   @Override
   public boolean check() {
     System.out.println("Слабо дойти до сюда и исправить Fail этой таски?");
-    boolean codeSmellsGood = false;
-    boolean reviewerDrunk = false;
-    return codeSmellsGood || reviewerDrunk;
+    //boolean codeSmellsGood = false;
+    //boolean reviewerDrunk = false;
+
+    List<Person> persons1 = new ArrayList<>();
+    persons1.add(new Person(1, "Ivan", "Ivanov", "Petrovich", null));
+    persons1.add(new Person(2, "Semen", "Petrov", "Victorovich", null));
+
+    List<Person> persons2 = new ArrayList<>();
+    persons2.add(new Person(1, "Semen", "Kupchin", "Andreevich", null));
+    persons2.add(new Person(2, "Semen", "Petrov", "Victorovich", null));
+    persons2.add(new Person(3, "Pavel", "Golubev", "Ivanovich", null));
+
+    List<Person> persons3 = new ArrayList<>();
+    persons3.add(new Person(1, "Semen", "Kupchin", "Andreevich", null));
+    persons3.add(new Person(2, "Semen", "Petrov", "Victorovich", null));
+    persons3.add(new Person(3, "Pavel", "Golubev", "Ivanovich", null));
+
+    // проверяем работу методов getDifferentNames() и getNames()
+    boolean checkGetDifferentNames = getDifferentNames(persons2).equals(Set.of("Semen", "Pavel"));
+
+    // проверяем работу методов getPersonsName() и convertPersonToString()
+    boolean checkGetPersonsName = getPersonNames(persons3).equals(Map.of(1, "Kupchin Semen Andreevich",
+            2, "Petrov Semen Victorovich",3, "Golubev Pavel Ivanovich"));
+
+    boolean checkHasSamePersons = hasSamePersons(persons1, persons2); // проверяем работу метода hasSamePersons()
+    boolean checkCountEven = countEven(Stream.of(2, 3, 6, 7, 88, 5)) == 3; // проверяем работу метода countEven()
+
+    return checkGetDifferentNames && checkGetPersonsName && checkHasSamePersons && checkCountEven;
+    //return codeSmellsGood || reviewerDrunk;
   }
 }

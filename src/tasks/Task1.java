@@ -4,6 +4,7 @@ import common.Person;
 import common.PersonService;
 import common.Task;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -21,7 +22,17 @@ public class Task1 implements Task {
   // !!! Редактируйте этот метод !!!
   private List<Person> findOrderedPersons(List<Integer> personIds) {
     Set<Person> persons = PersonService.findPersons(personIds);
-    return Collections.emptyList();
+    List<Person> resultPersons = new ArrayList<>();
+    personIds.forEach(id -> persons.stream().filter(person -> person.getId().equals(id)).forEach(resultPersons::add)); // Астмптотика O(n^2)
+    /*for(Integer id : personIds) {
+      for (Person person : persons) {
+        if (id == person.getId()) {
+          resultPersons.add(person);
+          break;
+        }
+      }
+    }*/
+    return resultPersons;
   }
 
   @Override
