@@ -23,7 +23,11 @@ public class Task6 implements Task {
   private Set<String> getPersonDescriptions(Collection<Person> persons,
                                             Map<Integer, Set<Integer>> personAreaIds,
                                             Collection<Area> areas) {
-    return new HashSet<>();
+    Set<String> result = new HashSet<>();
+    persons.forEach(pers -> personAreaIds.get(pers.getId()).stream()
+            .forEach(id -> areas.stream().filter(ar -> ar.getId().equals(id)).forEach(ar2 -> result.add(pers.getFirstName() + " - " + ar2.getName()))));
+
+    return result;
   }
 
   @Override
