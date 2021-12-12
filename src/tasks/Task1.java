@@ -24,14 +24,6 @@ public class Task1 implements Task {
     Set<Person> persons = PersonService.findPersons(personIds);
     List<Person> resultPersons = new ArrayList<>();
     personIds.forEach(id -> persons.stream().filter(person -> person.getId().equals(id)).forEach(resultPersons::add)); // Астмптотика O(n^2)
-    /*for(Integer id : personIds) {
-      for (Person person : persons) {
-        if (id == person.getId()) {
-          resultPersons.add(person);
-          break;
-        }
-      }
-    }*/
     return resultPersons;
   }
 
