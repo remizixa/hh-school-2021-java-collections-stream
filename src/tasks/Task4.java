@@ -7,6 +7,7 @@ import common.Task;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /*
 Задача 4
@@ -19,9 +20,7 @@ public class Task4 implements Task {
 
   // !!! Редактируйте этот метод !!!
   private List<ApiPersonDto> convert(List<Person> persons) {
-    List<ApiPersonDto> formatedPersons = new ArrayList<>();
-    persons.forEach(p -> formatedPersons.add(Task4.convert(p)));
-    return formatedPersons;
+    return persons.stream().map(Task4::convert).collect(Collectors.toList());
   }
 
   private static ApiPersonDto convert(Person person) {

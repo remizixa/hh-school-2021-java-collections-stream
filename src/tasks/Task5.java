@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /*
 Задача 5
@@ -20,9 +21,9 @@ public class Task5 implements Task {
 
   // !!! Редактируйте этот метод !!!
   private List<ApiPersonDto> convert(List<Person> persons, Map<Integer, Integer> personAreaIds) {
-    List<ApiPersonDto> formatedPersons = new ArrayList<>();
-    persons.forEach(p -> formatedPersons.add(Task5.convert(p, personAreaIds.get(p.getId()))));
-    return formatedPersons;
+    return persons.stream()
+            .map(person -> Task5.convert(person, personAreaIds.get(person.getId())))
+            .collect(Collectors.toList());
   }
 
   private static ApiPersonDto convert(Person person, Integer areaId) {
