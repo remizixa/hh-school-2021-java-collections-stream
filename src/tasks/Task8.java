@@ -2,9 +2,7 @@ package tasks;
 
 import common.Person;
 import common.Task;
-
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,31 +24,31 @@ public class Task8 implements Task {
     if (persons.size() == 0) {
       return Collections.emptyList();
     }
-    //persons.remove(0);
-    return persons.stream()
-            .filter(person -> !person.equals(persons.get(0)))
+    //persons.remove(0); // плохо тем, что выбрасывает исключение UnsupportedOperationException из-за попытки изменить неизменяемый список
+    return persons.stream().skip(1)
             .map(Person::getFirstName).collect(Collectors.toList()); // отфильтровываем все элементы кроме первого
   }
 
   //ну и различные имена тоже хочется
   public Set<String> getDifferentNames(List<Person> persons) {
-    return getNames(persons).stream().collect(Collectors.toSet()); // при формировании set дублирующиеся значения и так будут отброшены
+    return new HashSet<>(getNames(persons)); // при формировании set дублирующиеся значения и так будут отброшены
   }
 
   //Для фронтов выдадим полное имя, а то сами не могут
   public String convertPersonToString(Person person) {
     return Stream.of(person.getSecondName(), person.getFirstName(), person.getMiddleName())
-                    .collect(Collectors.joining(" "));
+            .filter(Objects::nonNull)
+            .collect(Collectors.joining(" "));
   }
 
   // словарь id персоны -> ее имя
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
-    return persons.stream().collect(Collectors.toMap(Person::getId, this::convertPersonToString, (id1, id2)-> id1));
+    return persons.stream().collect(Collectors.toMap(Person::getId, this::convertPersonToString, (person1, person2)-> person1));
   }
 
   // есть ли совпадающие в двух коллекциях персоны?
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
-    return persons1.stream().map(pers1 -> persons2.stream().filter(pers1::equals)).count() > 0;
+    return persons1.stream().anyMatch(persons2::contains);
   }
 
   // подсчет количества четных элементов
