@@ -2,13 +2,7 @@ package tasks;
 
 import common.Person;
 import common.Task;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,68 +24,69 @@ public class Task8 implements Task {
     if (persons.size() == 0) {
       return Collections.emptyList();
     }
-    persons.remove(0);
-    return persons.stream().map(Person::getFirstName).collect(Collectors.toList());
+    //persons.remove(0); // плохо тем, что выбрасывает исключение UnsupportedOperationException из-за попытки изменить неизменяемый список
+    return persons.stream().skip(1)
+            .map(Person::getFirstName).collect(Collectors.toList()); // отфильтровываем все элементы кроме первого
   }
 
   //ну и различные имена тоже хочется
   public Set<String> getDifferentNames(List<Person> persons) {
-    return getNames(persons).stream().distinct().collect(Collectors.toSet());
+    return new HashSet<>(getNames(persons)); // при формировании set дублирующиеся значения и так будут отброшены
   }
 
   //Для фронтов выдадим полное имя, а то сами не могут
   public String convertPersonToString(Person person) {
-    String result = "";
-    if (person.getSecondName() != null) {
-      result += person.getSecondName();
-    }
-
-    if (person.getFirstName() != null) {
-      result += " " + person.getFirstName();
-    }
-
-    if (person.getSecondName() != null) {
-      result += " " + person.getSecondName();
-    }
-    return result;
+    return Stream.of(person.getSecondName(), person.getFirstName(), person.getMiddleName())
+            .filter(Objects::nonNull)
+            .collect(Collectors.joining(" "));
   }
 
   // словарь id персоны -> ее имя
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
-    Map<Integer, String> map = new HashMap<>(1);
-    for (Person person : persons) {
-      if (!map.containsKey(person.getId())) {
-        map.put(person.getId(), convertPersonToString(person));
-      }
-    }
-    return map;
+    return persons.stream().collect(Collectors.toMap(Person::getId, this::convertPersonToString, (person1, person2)-> person1));
   }
 
   // есть ли совпадающие в двух коллекциях персоны?
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
-    boolean has = false;
-    for (Person person1 : persons1) {
-      for (Person person2 : persons2) {
-        if (person1.equals(person2)) {
-          has = true;
-        }
-      }
-    }
-    return has;
+    return persons1.stream().anyMatch(persons2::contains);
   }
 
-  //...
+  // подсчет количества четных элементов
   public long countEven(Stream<Integer> numbers) {
-    count = 0;
-    numbers.filter(num -> num % 2 == 0).forEach(num -> count++);
-    return count;
+    return numbers.filter(num -> num % 2 == 0).count();
   }
 
   @Override
   public boolean check() {
     System.out.println("Слабо дойти до сюда и исправить Fail этой таски?");
-    boolean codeSmellsGood = false;
-    boolean reviewerDrunk = false;
-    return codeSmellsGood || reviewerDrunk;
+    //boolean codeSmellsGood = false;
+    //boolean reviewerDrunk = false;
+
+    List<Person> persons1 = new ArrayList<>();
+    persons1.add(new Person(1, "Ivan", "Ivanov", "Petrovich", null));
+    persons1.add(new Person(2, "Semen", "Petrov", "Victorovich", null));
+
+    List<Person> persons2 = new ArrayList<>();
+    persons2.add(new Person(1, "Semen", "Kupchin", "Andreevich", null));
+    persons2.add(new Person(2, "Semen", "Petrov", "Victorovich", null));
+    persons2.add(new Person(3, "Pavel", "Golubev", "Ivanovich", null));
+
+    List<Person> persons3 = new ArrayList<>();
+    persons3.add(new Person(1, "Semen", "Kupchin", "Andreevich", null));
+    persons3.add(new Person(2, "Semen", "Petrov", "Victorovich", null));
+    persons3.add(new Person(3, "Pavel", "Golubev", "Ivanovich", null));
+
+    // проверяем работу методов getDifferentNames() и getNames()
+    boolean checkGetDifferentNames = getDifferentNames(persons2).equals(Set.of("Semen", "Pavel"));
+
+    // проверяем работу методов getPersonsName() и convertPersonToString()
+    boolean checkGetPersonsName = getPersonNames(persons3).equals(Map.of(1, "Kupchin Semen Andreevich",
+            2, "Petrov Semen Victorovich",3, "Golubev Pavel Ivanovich"));
+
+    boolean checkHasSamePersons = hasSamePersons(persons1, persons2); // проверяем работу метода hasSamePersons()
+    boolean checkCountEven = countEven(Stream.of(2, 3, 6, 7, 88, 5)) == 3; // проверяем работу метода countEven()
+
+    return checkGetDifferentNames && checkGetPersonsName && checkHasSamePersons && checkCountEven;
+    //return codeSmellsGood || reviewerDrunk;
   }
 }

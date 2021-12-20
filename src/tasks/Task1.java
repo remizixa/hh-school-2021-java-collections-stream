@@ -4,9 +4,8 @@ import common.Person;
 import common.PersonService;
 import common.Task;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /*
@@ -20,8 +19,10 @@ public class Task1 implements Task {
 
   // !!! Редактируйте этот метод !!!
   private List<Person> findOrderedPersons(List<Integer> personIds) {
-    Set<Person> persons = PersonService.findPersons(personIds);
-    return Collections.emptyList();
+    //Set<Person> persons = PersonService.findPersons(personIds);
+    Map <Integer, Person> persons = PersonService.findPersons(personIds).stream()
+            .collect(Collectors.toMap(Person::getId, Function.identity()));
+    return personIds.stream().map(persons::get).collect(Collectors.toList());
   }
 
   @Override
